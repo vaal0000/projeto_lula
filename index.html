@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Vai lutar contra o fascismo?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  html, body { 
+    height: 100%; 
+    width: 100%; 
+    overflow: hidden; 
+    background: #c1121f;
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+  }
+
+  .app-container { 
+    position: relative; 
+    width: 100vw; 
+    height: 100vh; 
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    justify-content: flex-start;
+    padding-top: 10vh;
+    overflow: hidden; 
+  }
+
+  .pergunta {
+    color: #ffffff;
+    font-size: 1.8rem;
+    text-align: center;
+    line-height: 1.5;
+    max-width: 90%;
+    text-transform: uppercase;
+    z-index: 5;
+  }
+
+  .card-fundo {
+    margin-top: 5vh;
+    background: #a10d18;
+    width: 80%;
+    max-width: 600px;
+    height: 300px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .btn-wrapper {
+    width: 120px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  button { 
+    font-size: 1.5rem; 
+    padding: 20px 40px; 
+    border: none; 
+    border-radius: 12px; 
+    cursor: pointer; 
+    font-family: inherit;
+    font-weight: bold;
+    background: #ffffff;
+    color: #c1121f;
+    transition: transform 0.1s, opacity 0.3s; 
+    user-select: none;
+    box-shadow: 0 4px 0 #8c0d16;
+    width: 120px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    touch-action: manipulation; 
+  }
+
+  button:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #8c0d16;
+  }
+
+  #btn-sim.escondido {
+    opacity: 0;
+    pointer-events: none; 
+    transform: scale(0.8);
+  }
+
+  #btn-nao { 
+    position: relative; 
+    z-index: 20; 
+    transition: transform 0.1s; 
+  }
+
+  /* Quando o botão começar a fugir, ele fica fixed sem transição inicial */
+  #btn-nao.fugindo {
+    position: fixed;
+    transition: transform 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53), opacity 0.5s ease; 
+  }
+
+  /* ===== BONECO ===== */
+  #boneco { 
+    position: fixed; 
+    left: 50%; 
+    top: 50%; 
+    width: 180px; 
+    height: auto; 
+    transform: translate(-50%, -50%) scale(0); 
+    opacity: 0; 
+    pointer-events: none; 
+    z-index: 30; 
+    transform-origin: center bottom; 
+    will-change: transform, left, top, opacity; 
+    image-rendering: pixelated; 
+  }
+
+  @media (min-width: 768px) { 
+    #boneco { width: 250px; } 
+  }
+
+  /* Animação de Corrida */
+  @keyframes correr {
+    0%   { transform: translate(-50%, -50%) translateY(0) scale(1.6) rotate(-5deg); }
+    25%  { transform: translate(-50%, -50%) translateY(-15px) scale(1.6) rotate(5deg); }
+    50%  { transform: translate(-50%, -50%) translateY(0) scale(1.6) rotate(-5deg); }
+    75%  { transform: translate(-50%, -50%) translateY(-15px) scale(1.6) rotate(5deg); }
+    100% { transform: translate(-50%, -50%) translateY(0) scale(1.6) rotate(-5deg); }
+  }
+
+  /* Animação do Beijo */
+  @keyframes beijar {
+    0%   { transform: translate(-50%, -50%) scale(1.6) rotate(0deg); }
+    50%  { transform: translate(-50%, -50%) scale(1.8) rotate(-12deg); }
+    100% { transform: translate(-50%, -50%) scale(1.6) rotate(0deg); }
+  }
+
+  /* ESTRELA GIGANTE (50% da tela) */
+  .estrela-gigante {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    width: 50vmin; 
+    height: 50vmin;
+    transform: translate(-50%, -50%) scale(0);
+    pointer-events: none;
+    z-index: 25;
+    animation: estrelaPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    filter: drop-shadow(0 0 30px rgba(255,255,255,0.8));
+  }
+
+  @keyframes estrelaPop {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(-45deg); opacity: 0; }
+    60% { transform: translate(-50%, -50%) scale(1.1) rotate(10deg); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  /* CHUVA DE ESTRELAS */
+  .estrela-caindo { 
+    position: fixed; 
+    color: #ffffff; 
+    top: -50px; 
+    pointer-events: none; 
+    z-index: 8; 
+    animation: cair linear forwards; 
+    text-shadow: 0 0 10px rgba(255,255,255,0.8); 
+  }
+  @keyframes cair { 
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; } 
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0.5; } 
+  }
+
+  @media (max-width: 768px) { 
+    .pergunta { font-size: 1.2rem; }
+    .card-fundo { height: 250px; width: 90%; }
+    .btn-wrapper, button { width: 100px; height: 50px; font-size: 1.1rem; padding: 0; }
+    #boneco { width: 150px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <h1 class="pergunta">Vai lutar contra<br>o fascismo?</h1>
+  
+  <div class="card-fundo">
+    <button id="btn-sim">Sim</button>
+    
+    <div class="btn-wrapper">
+      <button id="btn-nao">Não</button>
+    </div>
+  </div>
+</div>
+
+<img id="boneco" src="imagens/boneco.png" alt="Boneco">
+
+<script>
+  const btnNao = document.getElementById('btn-nao');
+  const btnSim = document.getElementById('btn-sim');
+  const boneco = document.getElementById('boneco');
+  
+  let fugindo = false;
+  let chuvaAtiva = false;
+  let animacaoRodando = false; 
+  let audioDesbloqueado = false;
+
+  // Áudio
+  const somSim = new Audio('audios/musica-sim.mp3');
+  somSim.loop = true; 
+  somSim.volume = 0.6;
+
+  const somNao = new Audio('audios/som-nao.mp3');
+  somNao.volume = 0.8;
+
+  // ==========================================
+  // DESTRAVANDO O ÁUDIO NO MOBILE
+  // ==========================================
+  // Os navegadores mobile bloqueiam áudio até que o usuário interaja com a tela.
+  // Esta função toca um áudio mudo no primeiro toque para destravar o sistema.
+  function desbloquearAudio() {
+    if (audioDesbloqueado) return;
+    audioDesbloqueado = true;
+    
+    // Toca e pausa imediatamente para liberar o áudio
+    somNao.play().then(() => {
+      somNao.pause();
+      somNao.currentTime = 0;
+    }).catch(() => {});
+    
+    somSim.play().then(() => {
+      somSim.pause();
+      somSim.currentTime = 0;
+    }).catch(() => {});
+  }
+
+  // Adiciona o destravamento no primeiro toque em qualquer lugar da tela
+  document.body.addEventListener('pointerdown', desbloquearAudio, { once: true });
+  document.body.addEventListener('touchstart', desbloquearAudio, { once: true });
+
+  function tocarSomQuebrando() {
+    somNao.currentTime = 0; 
+    somNao.play().catch(e => console.log("Áudio bloqueado", e));
+  }
+
+  // Fuga do botão "Não" (CORRIGIDO)
+  function fugir() {
+    if (fugindo) return; 
+    fugindo = true;
+
+    // 1. Toca o som
+    tocarSomQuebrando(); 
+
+    // 2. Pega a posição do botão
+    const rect = btnNao.getBoundingClientRect();
+    
+    // 3. Aplica o estilo fixed e posiciona no local exato
+    btnNao.classList.add('fugindo');
+    btnNao.style.left = rect.left + 'px';
+    btnNao.style.top = rect.top + 'px';
+    btnNao.style.transform = 'translate(0, 0) scale(1)';
+    btnNao.style.margin = '0';
+
+    // 4. Aguarda um frame do navegador para garantir que ele "nasceu" no lugar
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        // Calcula o centro
+        const centroX = window.innerWidth / 2;
+        const centroY = window.innerHeight / 2;
+
+        // Aplica a sucção
+        btnNao.style.transform = `translate(${centroX - rect.left - (rect.width/2)}px, ${centroY - rect.top - (rect.height/2)}px) scale(0)`;
+        btnNao.style.opacity = '0';
+      });
+    });
+
+    // 5. Depois que sumir (500ms), reaparece em outro lugar
+    setTimeout(() => {
+      const margem = 30;
+      const maxX = window.innerWidth  - btnNao.offsetWidth  - margem;
+      const maxY = window.innerHeight - btnNao.offsetHeight - margem;
+      
+      const novoX = Math.random() * maxX + margem/2;
+      const novoY = Math.random() * maxY + margem/2;
+
+      btnNao.style.transition = 'none';
+      btnNao.style.left = novoX + 'px';
+      btnNao.style.top = novoY + 'px';
+      btnNao.style.transform = 'translate(0, 0) scale(0)';
+      
+      void btnNao.offsetWidth; 
+
+      btnNao.style.transition = 'transform 0.4s ease, opacity 0.4s ease'; 
+      btnNao.style.transform = 'translate(0, 0) scale(1)';
+      btnNao.style.opacity = '1';
+
+      setTimeout(() => { fugindo = false; }, 400); 
+    }, 500); 
+  }
+
+  // Usamos pointerup (dedo levanta) para garantir que o clique foi intencional
+  btnNao.addEventListener('pointerup', (e) => { 
+    fugir(); 
+  });
+  
+  // Fallback para navegadores antigos
+  btnNao.addEventListener('click', (e) => { 
+    if (e.pointerType === 'mouse') return; // Evita duplicar o evento do mouse
+    fugir(); 
+  });
+
+  // Mouse perto (Desktop)
+  document.addEventListener('mousemove', (e) => {
+    if (window.innerWidth > 768) {
+      const r = btnNao.getBoundingClientRect();
+      const dist = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top  + r.height / 2));
+      if (dist < 100) fugir();
+    }
+  });
+
+  // Chuva de estrelas
+  function iniciarChuva() {
+    if (chuvaAtiva) return;
+    chuvaAtiva = true;
+
+    const intervalo = setInterval(() => {
+      const estrela = document.createElement('div');
+      estrela.className = 'estrela-caindo';
+      estrela.textContent = '⭐'; 
+      
+      const tamanho = Math.random() * 20 + 15;
+      estrela.style.fontSize = tamanho + 'px';
+      estrela.style.left = (Math.random() * window.innerWidth) + 'px';
+      
+      const duracao = Math.random() * 2 + 2;
+      estrela.style.animationDuration = duracao + 's';
+
+      document.body.appendChild(estrela);
+      setTimeout(() => { estrela.remove(); }, duracao * 1000);
+    }, 100);
+
+    setTimeout(() => { clearInterval(intervalo); chuvaAtiva = false; }, 4000);
+  }
+
+  // Clique no Sim
+  btnSim.addEventListener('click', () => {
+    if (animacaoRodando) return;
+    animacaoRodando = true;
+
+    btnSim.classList.add('escondido');
+
+    somSim.currentTime = 0;
+    somSim.play().catch(e => console.log("Áudio bloqueado", e));
+    iniciarChuva();
+
+    const r = btnSim.getBoundingClientRect();
+    
+    boneco.style.transition = 'none';
+    boneco.style.left = (r.left + r.width / 2) + 'px';
+    boneco.style.top  = (r.top + r.height / 2) + 'px';
+    boneco.style.transform = 'translate(-50%, -50%) scale(0.02)'; 
+    boneco.style.opacity = '0';
+
+    requestAnimationFrame(() => {
+      boneco.style.transition = 'opacity 0.4s ease, transform 0.6s ease';
+      boneco.style.opacity = '1';
+      boneco.style.transform = 'translate(-50%, -80%) scale(0.15)';
+    });
+
+    setTimeout(() => {
+      boneco.style.transition = 'left 1.2s cubic-bezier(.34,1.56,.64,1), top 1.2s cubic-bezier(.34,1.56,.64,1), transform 1.2s cubic-bezier(.34,1.56,.64,1)';
+      boneco.style.left = window.innerWidth  / 2 + 'px';
+      boneco.style.top  = window.innerHeight / 2 + 'px';
+      boneco.style.transform = 'translate(-50%, -50%) scale(1.6)'; 
+    }, 800); 
+
+    setTimeout(() => {
+      boneco.style.animation = 'correr 0.3s ease-in-out infinite';
+    }, 2000);
+
+    setTimeout(() => {
+      boneco.style.animation = 'beijar 0.6s ease';
+
+      const estrela = document.createElement('div');
+      estrela.className = 'estrela-gigante';
+      estrela.id = 'estrelaFinal';
+      estrela.innerHTML = `
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <polygon points="50,5 61,35 95,35 68,55 78,90 50,70 22,90 32,55 5,35 39,35" fill="#ff0000" stroke="#ffffff" stroke-width="4"/>
+        </svg>
+      `;
+      document.body.appendChild(estrela);
+    }, 3200); 
+
+    setTimeout(() => {
+      const estrelaFinal = document.getElementById('estrelaFinal');
+      let targetX = window.innerWidth / 2;
+      let targetY = window.innerHeight / 2;
+
+      if (estrelaFinal) {
+        const rectEstrela = estrelaFinal.getBoundingClientRect();
+        targetX = rectEstrela.left - (rectEstrela.width * 0.1); 
+        targetY = rectEstrela.top + (rectEstrela.height * 0.5);
+      }
+
+      boneco.style.transition = 'left 0.8s ease, top 0.8s ease, transform 0.8s ease';
+      boneco.style.left = targetX + 'px';
+      boneco.style.top = targetY + 'px';
+      boneco.style.transform = 'translate(-50%, -50%) scale(0.5)'; 
+      
+    }, 3800); 
+
+    setTimeout(() => {
+      somSim.pause();
+      somSim.currentTime = 0;
+
+      boneco.style.transition = 'opacity 0.8s ease';
+      boneco.style.opacity = '0';
+
+      const estrelaFinal = document.getElementById('estrelaFinal');
+      if (estrelaFinal) {
+        estrelaFinal.style.transition = 'opacity 0.8s ease';
+        estrelaFinal.style.opacity = '0';
+      }
+
+      setTimeout(() => {
+        boneco.style.transition = 'none';
+        boneco.style.transform = 'translate(-50%, -50%) scale(0)';
+        if (estrelaFinal) estrelaFinal.remove();
+      }, 800);
+
+    }, 35000); 
+
+    setTimeout(() => {
+      btnSim.classList.remove('escondido');
+      
+      btnNao.classList.remove('fugindo'); 
+      btnNao.style.left = '';
+      btnNao.style.top = '';
+      btnNao.style.transform = '';
+      btnNao.style.opacity = '1';
+      btnNao.style.transition = 'none'; 
+      btnNao.style.margin = '';
+
+      animacaoRodando = false; 
+    }, 36000); 
+  });
+</script>
+</body>
+</html>
